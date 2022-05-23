@@ -1,0 +1,105 @@
+# proton.mac
+#
+/control/verbose 2
+/run/verbose 2
+/tracking/verbose 0
+/run/particle/verbose 1
+/run/particle/dumpList
+#
+# set geometry 
+/protonGB/det/setSizeX  1.0 mm
+/protonGB/det/setSizeYZ 1.0 mm
+/protonGB/det/setSliceSizeYZ 1.0 mm
+/protonGB/det/sliceNumber 0
+#
+# define scoring mesh along the beam
+#/score/create/boxMesh CrystalMesh
+#/score/mesh/boxSize 0.5 0.5 0.5 mm
+#/score/mesh/nBin 10 1 1
+#/score/mesh/translate/xyz 0. 0. 0. mm
+#/score/quantity/energyDeposit eDep MeV
+#/score/quantity/doseDeposit dose Gy
+#/score/close
+#
+# set physics process
+/protonGB/phys/addPhysics QGSP_BIC_EMY
+#/protonGB/phys/addPhysics emlivermore
+#/protonGB/phys/addPhysics empenelope
+/process/em/fluo true
+/process/em/auger true
+/process/em/augerCascade true
+/process/em/pixe true
+/process/em/deexcitationIgnoreCut true
+/process/em/printParameters
+#
+# production tresholds (recommended range 
+#cut off not bigger than 10% of slice thickness)
+/protonGB/phys/setCuts 1.0 um
+#/protonGB/phys/setGCut 1.0 um
+#/protonGB/phys/setECut 1.0 um
+#/protonGB/phys/setPCut 1.0 um
+
+#/cuts/setLowEdge 100.0 eV
+#
+# initialize
+/run/setCut 1.0 um
+#/run/setCutForAGivenParticle e- 1.0 um
+/run/initialize
+#
+# visualisation
+/control/execute vis.mac   # turn visualization ON
+#
+# General particle source
+# proton source  
+/gps/pos/type Plane
+/gps/pos/shape Ellipse
+/gps/pos/centre 2.5 0. 0. mm
+#/gps/pos/radius 0.3 mm
+/gps/pos/halfx 0.3 mm
+/gps/pos/halfy 0.3 mm
+#/gps/pos/sigma_r 0.2 mm
+/gps/pos/sigma_x 0.2 mm
+/gps/pos/sigma_y 0.2 mm
+/gps/particle proton
+#
+# the incident surface is in the y-z plane
+/gps/pos/rot1 0 1 0
+/gps/pos/rot2 0 0 1
+#
+# the beam is travelling along the x-axis
+# 1d gaussian shape
+/gps/ang/rot1 0 0 -1
+/gps/ang/rot2 0 1 0 
+/gps/ang/type beam1d 
+#/gps/ang/sigma_r 0. deg
+/gps/ang/sigma_x 0.0032 rad
+/gps/ang/sigma_y 0.0032 rad
+/gps/ang/mintheta 90. deg
+/gps/ang/maxtheta 90. deg
+#
+# the beam energy
+#/gps/ene/type Gauss
+/gps/ene/mono 150 MeV
+/gps/ene/sigma 1.2 MeV
+#
+# step limit (recommended not bigger than 5% of 
+# slice thickness)
+#/protonGB/stepMax 0.02 mm
+#
+/protonGB/event/printModulo 50
+#
+# output file
+/analysis/setFileName Proton
+# 
+/analysis/h1/set 2 50 25 35 mm
+# number of events
+/run/beamOn 1
+#/run/numberOfThreads 4
+#
+# drawing projections
+#/score/drawProjection waterMeshlongitudinal doseDeposit
+
+# dump scores to a file
+/score/dumpQuantityToFile CrystalMesh dose DoseCrystal.txt
+/score/dumpQuantityToFile CrystalMesh eDep EnergyCrystal.txt
+
